@@ -83,12 +83,14 @@ onBeforeRouteLeave(() => {
         label="Latitude"
         :error="errors.lat"
         :disabled="loading"
+        type="number"
       />
       <AppFormField
         name="long"
         label="Longitude"
         :error="errors.long"
         :disabled="loading"
+        type="number"
       />
 
       <div class="flex justify-end gap-2">
