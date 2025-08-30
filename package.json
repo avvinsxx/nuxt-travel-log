@@ -25,6 +25,7 @@
     "concurrently": "^9.2.0",
     "drizzle-orm": "^0.44.4",
     "drizzle-zod": "^0.8.3",
+    "maplibre-gl": "^5.7.0",
     "nanoid": "^5.1.5",
     "nuxt": "^3.18.1",
     "nuxt-csurf": "^1.6.5",

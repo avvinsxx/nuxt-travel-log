@@ -1,7 +1,7 @@
 import type z from "zod";
 
 import { int, real, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
-import { createSchemaFactory } from "drizzle-zod";
+import { createInsertSchema } from "drizzle-zod";
 
 import { user } from "./auth";
 
@@ -18,12 +18,6 @@ export const location = sqliteTable("location", {
 }, t => [
   unique().on(t.name, t.userId),
 ]);
-
-const { createInsertSchema } = createSchemaFactory({
-  coerce: {
-    number: true,
-  },
-});
 
 export const InsertLocation = createInsertSchema(location, {
   name: field => field.min(1).max(100),
