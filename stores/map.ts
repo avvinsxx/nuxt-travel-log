@@ -26,6 +26,7 @@ export const useMapStore = defineStore("mapStore", () => {
       }, new LngLatBounds([firstPoint.long, firstPoint.lat], [firstPoint.long, firstPoint.lat]));
       map.map?.fitBounds(bounds, {
         padding,
+        maxZoom: 10,
       });
     });
 
