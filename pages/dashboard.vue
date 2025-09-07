@@ -1,20 +1,26 @@
 <script setup lang="ts">
+import { CURRENT_lOCATION_PAGES, EDIT_PAGES, LOCATION_PAGES } from "~/lib/constants";
+
 const isSidebarOpen = ref(true);
 const route = useRoute();
 const sidebarStore = useSidebarStore();
 const locationsStore = useLocationsStore();
 const mapStore = useMapStore();
-const { currentLocation } = storeToRefs(locationsStore);
+const { currentLocation, currentLocationStatus } = storeToRefs(locationsStore);
+
+if (LOCATION_PAGES.has(route.name?.toString() || "")) {
+  await locationsStore.refreshLocations();
+}
+if (CURRENT_lOCATION_PAGES.has(route.name?.toString() || "")) {
+  await locationsStore.refreshCurrentLocation();
+}
 
 onMounted(() => {
   isSidebarOpen.value = localStorage.getItem("isSidebarOpen") === "true";
-  if (route.path !== "/dashboard") {
-    locationsStore.refreshLocations();
-  }
 });
 
 effect(() => {
-  if (route.name === "dashboard") {
+  if (LOCATION_PAGES.has(route.name?.toString() || "")) {
     sidebarStore.sidebarTopItems = [{
       id: "link-dashboard",
       label: "Locations",
@@ -27,43 +33,47 @@ effect(() => {
       icon: "tabler:circle-plus-filled",
     }];
   }
-  else if (route.name === "dashboard-location-slug") {
+  else if (CURRENT_lOCATION_PAGES.has(route.name?.toString() || "")) {
     sidebarStore.sidebarTopItems = [{
       id: "link-dashboard",
       label: "Back to Locations",
       href: "/dashboard",
       icon: "tabler:arrow-left",
-    }, {
-      id: "link-dashboard",
-      label: currentLocation.value ? currentLocation.value.name : "View Logs",
-      to: {
-        name: "dashboard-location-slug",
-        params: {
-          slug: currentLocation.value?.slug,
-        },
-      },
-      icon: "tabler:map",
-    }, {
-      id: "link-location-edit",
-      label: "Edit Location",
-      to: {
-        name: "dashboard-location-slug-edit",
-        params: {
-          slug: currentLocation.value?.slug,
-        },
-      },
-      icon: "tabler:map-pin-cog",
-    }, {
-      id: "link-location-add",
-      label: "Add Location Log",
-      to: {
-        name: "dashboard-location-slug-add",
-        params: {
-          slug: currentLocation.value?.slug,
-        },
-      },
-      icon: "tabler:circle-plus-filled",
     }];
+
+    if (currentLocation.value && currentLocationStatus.value !== "pending") {
+      sidebarStore.sidebarTopItems.push({
+        id: "link-dashboard",
+        label: currentLocation.value.name,
+        to: {
+          name: "dashboard-location-slug",
+          params: {
+            slug: route.params.slug,
+          },
+        },
+        icon: "tabler:map",
+      }, {
+        id: "link-location-edit",
+        label: "Edit Location",
+        to: {
+          name: "dashboard-location-slug-edit",
+          params: {
+            slug: route.params.slug,
+          },
+        },
+        icon: "tabler:map-pin-cog",
+      }, {
+        id: "link-location-add",
+        label: "Add Location Log",
+        to: {
+          name: "dashboard-location-slug-add",
+          params: {
+            slug: route.params.slug,
+          },
+        },
+        icon: "tabler:circle-plus-filled",
+      });
+    }
   }
 });
 
@@ -111,6 +121,12 @@ function toggleSidebar() {
           :href="item.href"
           :to="item.to"
         />
+        <div
+          v-if="route.path.startsWith('/dashboard/location') && currentLocationStatus === 'pending'"
+          class="flex items-center justify-center"
+        >
+          <div class="loading" />
+        </div>
         <div v-if="sidebarStore.loading || sidebarStore.sidebarItems.length" class="divider" />
         <div v-if="sidebarStore.loading" class="px-4">
           <div class="skeleton h-4 w-full" />
@@ -141,10 +157,15 @@ function toggleSidebar() {
       <div
         class="flex size-full"
         :class="{
-          'flex-col': route.path !== '/dashboard/add',
+          'flex-col': !EDIT_PAGES.has(route.name?.toString() || ''),
         }"
       >
-        <NuxtPage />
+        <NuxtPage
+          :class="{
+            'shrink-0': EDIT_PAGES.has(route.name?.toString() || ''),
+            'w-96': EDIT_PAGES.has(route.name?.toString() || ''),
+          }"
+        />
         <AppMap class="flex-1" />
       </div>
     </div>
