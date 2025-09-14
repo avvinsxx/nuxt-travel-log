@@ -3,7 +3,7 @@ import { defineAuthenticatedEventHandler } from "~/utils/define-authenticated-ev
 
 export default defineAuthenticatedEventHandler(async (event) => {
   const slug = getRouterParam(event, "slug") as string;
-  const location = findLocation(slug, event.context.user.id);
+  const location = await findLocation(slug, event.context.user.id);
 
   if (!location) {
     return sendError(event, createError({
