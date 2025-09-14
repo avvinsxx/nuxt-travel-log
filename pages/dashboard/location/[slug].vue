@@ -115,7 +115,7 @@ onBeforeRouteUpdate((to) => {
         </NuxtLink>
       </div>
     </div>
-    <div v-if="route.name === 'dashboard-location-slug' && location?.locationLogs.length" class="location-list">
+    <div v-if="route.name === 'dashboard-location-slug' && !loading && location?.locationLogs.length" class="location-list">
       <LocationCard
         v-for="log in location.locationLogs"
         :key="log.id"
