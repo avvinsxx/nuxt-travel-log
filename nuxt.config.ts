@@ -25,6 +25,11 @@ export default defineNuxtConfig({
     plugins: [
       tailwindcss(),
     ],
+    server: {
+      watch: {
+        ignored: ["./docker-data/*"],
+      },
+    },
   },
   colorMode: {
     dataValue: "theme",
