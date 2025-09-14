@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CURRENT_lOCATION_PAGES, EDIT_PAGES, LOCATION_PAGES } from "~/lib/constants";
+import { CURRENT_LOCATION_LOG_PAGES, CURRENT_LOCATION_PAGES, EDIT_PAGES, LOCATION_PAGES } from "~/lib/constants";
 
 const isSidebarOpen = ref(true);
 const route = useRoute();
@@ -11,8 +11,14 @@ const { currentLocation, currentLocationStatus } = storeToRefs(locationsStore);
 if (LOCATION_PAGES.has(route.name?.toString() || "")) {
   await locationsStore.refreshLocations();
 }
-if (CURRENT_lOCATION_PAGES.has(route.name?.toString() || "")) {
+if (
+  CURRENT_LOCATION_PAGES.has(route.name?.toString() || "")
+  || CURRENT_LOCATION_LOG_PAGES.has(route.name?.toString() || "")
+) {
   await locationsStore.refreshCurrentLocation();
+}
+if (CURRENT_LOCATION_LOG_PAGES.has(route.name?.toString() || "")) {
+  await locationsStore.refreshCurrentLocationLog();
 }
 
 onMounted(() => {
@@ -33,7 +39,7 @@ effect(() => {
       icon: "tabler:circle-plus-filled",
     }];
   }
-  else if (CURRENT_lOCATION_PAGES.has(route.name?.toString() || "")) {
+  else if (CURRENT_LOCATION_PAGES.has(route.name?.toString() || "")) {
     sidebarStore.sidebarTopItems = [{
       id: "link-dashboard",
       label: "Back to Locations",
@@ -73,6 +79,21 @@ effect(() => {
         },
         icon: "tabler:circle-plus-filled",
       });
+    }
+  }
+  else if (CURRENT_LOCATION_LOG_PAGES.has(route.name?.toString() || "")) {
+    if (currentLocation.value && currentLocationStatus.value !== "pending") {
+      sidebarStore.sidebarTopItems = [{
+        id: "link-location",
+        label: `Back to "${currentLocation.value.name}"`,
+        to: {
+          name: "dashboard-location-slug",
+          params: {
+            slug: route.params.slug,
+          },
+        },
+        icon: "tabler:arrow-left",
+      }];
     }
   }
 });
