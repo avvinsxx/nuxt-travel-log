@@ -10,7 +10,17 @@ export async function findLocationLog(
   userId: number,
 ) {
   const foundLog = await db.query.locationLog.findFirst({
-    where: and(eq(locationLog.id, id), eq(locationLog.userId, userId)),
+    where: and(
+      eq(locationLog.id, id),
+      eq(locationLog.userId, userId),
+    ),
+    with: {
+      images: {
+        orderBy(fields, operators) {
+          return operators.desc(fields.createdAt);
+        },
+      },
+    },
   });
 
   return foundLog;
