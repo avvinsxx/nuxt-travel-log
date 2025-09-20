@@ -20,19 +20,19 @@ export default defineAuthenticatedEventHandler(
       });
 
       if (!response.ok) {
-        return sendError(event, createError({
+        throw createError({
           statusCode: 504,
           statusMessage: "Unable to reach search API.",
-        }));
+        });
       }
 
       return (await response.json()) as NominatimResult[];
     }
     catch {
-      return sendError(event, createError({
+      throw createError({
         statusCode: 504,
         statusMessage: "Unable to reach search API.",
-      }));
+      });
     }
   }, {
     maxAge: 60 * 60 * 24,
